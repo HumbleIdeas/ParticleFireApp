@@ -64,7 +64,7 @@ ParticleFire - November 12th 1998.
 #include <Timer.h>
 #include <Basis.h>
 #include <Reg.h>
-#include <scrnsave.h>
+//#include <scrnsave.h>
 #include "resource.h"
 #include <CStr.h>
 
@@ -129,7 +129,6 @@ static inline bool PF_InputSuppressed() {
 	return GetTickCount64() < g_suppressInputUntil;
 }
 
-
 // For testing out stuff or gathering errors
 void error_print (char *buff)
 {
@@ -139,8 +138,10 @@ void error_print (char *buff)
 	fclose (fp);
 }
 
+static const wchar_t* kClass = L"ParticleFireWndProc";
+INT_PTR CALLBACK ScreenSaverConfigureDialog(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-LRESULT CALLBACK ScreenSaverProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
+static LRESULT CALLBACK ParticleFireWndProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
 	//
 	m_hWnd = hwnd;
 	//
@@ -271,8 +272,8 @@ LRESULT CALLBACK ScreenSaverProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
 			}
 #endif
 
-			//
-		//	PostQuitMessage(0);
+			// Must kill in desktop
+			PostQuitMessage(0);
 			return 0;
 		//handling mousemove to defeat pseudo mousemoves
 		case WM_MOUSEMOVE:
@@ -364,6 +365,20 @@ LRESULT CALLBACK ScreenSaverProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
 			}
 			break;
 		}
+		case WM_KEYDOWN:
+			if (wParam == VK_F1) {
+				// HINSTANCE = module instance; HWND = handle to window
+				HINSTANCE hInst = (HINSTANCE)GetModuleHandleW(NULL);
+				INT_PTR ret = DialogBoxParamW(
+					hInst,
+					MAKEINTRESOURCEW(IDD_DIALOG1), // your existing settings dialog
+					hwnd,                          // parent window
+					ScreenSaverConfigureDialog,    // reuse your SS dialog proc
+					0);
+				// ret == IDOK / IDCANCEL, etc.
+				return 0;
+			}
+			break;
 	}//Switch
 //	return DefWindowProc(hwnd, iMsg, wParam, lParam);
 	//
@@ -379,7 +394,7 @@ LRESULT CALLBACK ScreenSaverProc(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lPa
 //		return 0;
 //		return DefWindowProc(hwnd, iMsg, wParam, lParam);
 //	}else{
-		return DefScreenSaverProc(hwnd, iMsg, wParam, lParam);
+		return DefWindowProc(hwnd, iMsg, wParam, lParam);
 //	}
 }//WndProc
 
@@ -491,7 +506,7 @@ static void PopulateSettingsDialogFromState(HWND dlgwnd){
 	RedrawWindow(hBtn2, nullptr, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_UPDATENOW);
 }
 
-BOOL CALLBACK ScreenSaverConfigureDialog(HWND dlgwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
+INT_PTR CALLBACK ScreenSaverConfigureDialog(HWND dlgwnd, UINT iMsg, WPARAM wParam, LPARAM lParam){
 	BOOL error;
 	HWND ctrl;
 	LPDRAWITEMSTRUCT lpdis;
@@ -686,3 +701,23 @@ void DoFrame()
 
 }
 
+int APIENTRY wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, int)
+{
+	WNDCLASSW wc{}; wc.hInstance = hInst; wc.lpfnWndProc = ParticleFireWndProc;
+	wc.lpszClassName = kClass; wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	RegisterClassW(&wc);
+
+	HWND hwnd = CreateWindowExW(0, kClass, L"Particle Fire (Desktop)",
+		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+		CW_USEDEFAULT, CW_USEDEFAULT, 1280, 720,
+		nullptr, nullptr, hInst, nullptr);
+	if (!hwnd) return 1;
+
+	MSG m;
+	while (GetMessage(&m, nullptr, 0, 0)) {
+		TranslateMessage(&m);
+		DispatchMessage(&m);
+	}
+	return (int)m.wParam;
+}

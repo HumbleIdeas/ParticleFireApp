@@ -1,3 +1,26 @@
+## Particle Fire - Desktop Debug App
+
+A desktop build of Particle Fire intended for development and debugging of the original Windows screen saver.
+
+This app runs the exact simulation/rendering loop in a normal window so you can attach the Visual Studio debugger, set breakpoints, single-step, and inspect state without the constraints of the screen-saver host.
+
+### Why 
+
+- Easier debugging than a .scr (screen saver) host.
+- A safe place to prototype math-cull and per-monitor blitting before merging back into the saver.
+
+### Using
+
+1. Open the solution in VS 2022.
+2. Select x64 | Debug (or Release) and build.
+3. Run (F5). A desktop window (PFDesktopWndProc) will host the effect loop.
+4. Press (F1) to open settings dialog.
+
+
+---
+
+# Original README (verbatim)
+
 Particle Fire Screen Saver version 2.1.5, by Seumas McNally.
 Copyright 2000-2016 by Longbow Digital Arts Incorporated.
 
