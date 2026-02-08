@@ -34,17 +34,6 @@
 extern float frand(float range);
 extern void error_print (char *buff);
 
-//logger
-static void PF_LogFmtW(const wchar_t* fmt, ...)
-{
-	wchar_t buf[512];
-	va_list ap; va_start(ap, fmt);
-	_vsnwprintf_s(buf, _TRUNCATE, fmt, ap);
-	va_end(ap);
-	OutputDebugStringW(buf);
-}
-
-
 ParticleScreen::ParticleScreen ()
 {
 	Init ();
@@ -444,13 +433,13 @@ void ParticleScreen::Draw ()
 	//
 	//dib.Unlock();
 
-	////new
+	//////new
 	RECT wnd; GetWindowRect(m_hWnd, &wnd);
 
-	PF_LogFmtW(L"PF: wnd=(%ld,%ld)-(%ld,%ld) W=%ld H=%ld, DIB=%dx%d\n",
-		wnd.left, wnd.top, wnd.right, wnd.bottom,
-		wnd.right - wnd.left, wnd.bottom - wnd.top,
-		dib.Width(), dib.Height());
+	//PF_LogFmtW(L"PF: wnd=(%ld,%ld)-(%ld,%ld) W=%ld H=%ld, DIB=%dx%d\n",
+	//	wnd.left, wnd.top, wnd.right, wnd.bottom,
+	//	wnd.right - wnd.left, wnd.bottom - wnd.top,
+	//	dib.Width(), dib.Height());
 
 
 	dib.Lock();
@@ -473,11 +462,11 @@ void ParticleScreen::Draw ()
 		const int dstX = srcX;
 		const int dstY = srcY;
 
-		PF_LogFmtW(L"PF: blit mon=(%ld,%ld)-(%ld,%ld) → is=(%ld,%ld)-(%ld,%ld) "
-			L"src=(%d,%d) dst=(%d,%d) w=%d h=%d\n",
-			mon.left, mon.top, mon.right, mon.bottom,
-			is.left, is.top, is.right, is.bottom,
-			srcX, srcY, dstX, dstY, w, h);
+		//PF_LogFmtW(L"PF: blit mon=(%ld,%ld)-(%ld,%ld) → is=(%ld,%ld)-(%ld,%ld) "
+		//	L"src=(%d,%d) dst=(%d,%d) w=%d h=%d\n",
+		//	mon.left, mon.top, mon.right, mon.bottom,
+		//	is.left, is.top, is.right, is.bottom,
+		//	srcX, srcY, dstX, dstY, w, h);
 
 		dib.Blit(dstX, dstY, srcX, srcY, w, h);
 	}
@@ -1000,7 +989,7 @@ void ParticleScreen::DrawParticles ()
 		dx = (int)parent->p[i].x - x;
 		dy = (int)parent->p[i].y - y;
 		//Make sure LAST coords are inside bounds too.
-		if(x >= XOFF && y >= YOFF && x < WIDTH - XOFF && y < HEIGHT - YOFF)
+		if(x >= XOFF && y >= YOFF && x < WIDTH - XOFF && y < HEIGHT - YOFF && IsVisibleXY(x, y))
 		{
 			//Bresenham style line drawer.
 			//X major.

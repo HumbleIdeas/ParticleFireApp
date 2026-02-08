@@ -278,8 +278,8 @@ static LRESULT CALLBACK ParticleFireWndProc(HWND hwnd, UINT iMsg, WPARAM wParam,
 		//handling mousemove to defeat pseudo mousemoves
 		case WM_MOUSEMOVE:
 		{
-#if PF_DEBUG
-			pf_log("PF: WM_MOUSEMOVE\n");
+#if _DEBUG
+			PF_LogFmtW(L"PF: WM_MOUSEMOVE\n");
 #endif
 			if (partFire.screen.Preview) return 0;  // never dismiss from hover in preview
 

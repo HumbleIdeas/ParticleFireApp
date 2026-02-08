@@ -47,3 +47,17 @@
 #define BX4OFF (BXOFF / 4)
 #define BYOFF 2
 //New for improved burn code, BXOFf must be multiple of 4, and XOFF must be greater still.
+
+//debug flag
+#define PF_DEBUG 1
+//logger
+static void PF_LogFmtW(const wchar_t* fmt, ...)
+{
+#if _DEBUG
+	wchar_t buf[512];
+	va_list ap; va_start(ap, fmt);
+	_vsnwprintf_s(buf, _TRUNCATE, fmt, ap);
+	va_end(ap);
+	OutputDebugStringW(buf);
+#endif
+}
